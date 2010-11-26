@@ -1,0 +1,5 @@
+; $Id$
+name = "Node creation block"
+description = "Provides blocks for quick node creation"
+core = 7.x
+files[] = block_create_node.module

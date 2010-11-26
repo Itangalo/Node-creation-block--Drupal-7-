@@ -1,0 +1,53 @@
+<?php
+// $Id$
+
+/**
+ * @file
+ * Provides block with node creation forms.
+ */
+
+/**
+ * Implementation of hook_block_info().
+ */
+function block_create_node_block_info() {
+  include_once(drupal_get_path('module', 'node') . '/node.pages.inc');
+
+  $types = _node_types_build()->types;
+  foreach ($types as $type) {
+    $blocks[$type->type] = array(
+      'info' => t('Create @type', array('@type' => $type->name)),
+      'cache' => DRUPAL_CACHE_PER_ROLE,
+    );
+  }
+
+  return $blocks;
+}
+
+/**
+ * Implementation of hook_block_view().
+ */
+function block_create_node_block_view($delta) {
+  include_once(drupal_get_path('module', 'node') . '/node.pages.inc');
+
+  global $user;
+  $types = _node_types_build()->types;
+  $type = isset($delta) ? str_replace('-', '_', $delta) : NULL;
+
+  // If a node type has been specified, validate its existence.
+  if (isset($types[$type]) && node_access('create', $type)) {
+
+    $block['subject'] = t($type);
+
+    $node = array(
+      'uid' => $user->uid,
+      'name' => (isset($user->name) ? $user->name : ''),
+      'type' => $type,
+      'language' => '',
+    );
+    $node = (object) $node;
+
+    $block['content'] = drupal_get_form($type . '_node_form', $node);
+  }
+
+  return $block;
+}
